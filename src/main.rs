@@ -1,6 +1,18 @@
 use raytracing_in_one_weekend::*;
 
-pub fn color(ray: Ray) -> Vec3 {
+fn hit_sphere(center: &Vec3, radius: f64, r: &Ray) -> bool {
+  let oc = r.origin() - *center;
+  let a = Vec3::dot(r.direction(), r.direction());
+  let b = 2.0 * Vec3::dot(oc, r.direction());
+  let c = Vec3::dot(oc, oc) - radius.powi(2);
+  let discriminant = b.powi(2) - 4.0 * a * c;
+  discriminant > 0.0
+}
+
+fn color(ray: Ray) -> Vec3 {
+  if hit_sphere(&Vec3::new(0.0, 0.0, -1.0), 0.5, &ray) {
+    return Vec3::new(1.0, 0.0, 0.0);
+  }
   let unit_direction = Vec3::unit_vector(ray.direction());
   let t = 0.5 * (unit_direction.y() + 1.0);
   return (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0);
