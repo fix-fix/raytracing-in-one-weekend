@@ -43,6 +43,12 @@ impl Vec3 {
   }
 }
 
+impl Default for Vec3 {
+  fn default() -> Self {
+    Vec3::new(0.0, 0.0, 0.0)
+  }
+}
+
 impl Add for Vec3 {
   type Output = Vec3;
 
