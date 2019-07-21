@@ -1,3 +1,4 @@
+use rand::prelude::*;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, Sub};
 
 #[derive(Debug, Clone, Copy)]
@@ -14,8 +15,21 @@ impl Vec3 {
     (self.e[0].powi(2) + self.e[1].powi(2) + self.e[2].powi(2)).sqrt()
   }
 
+  pub fn squared_length(self) -> f64 {
+    self.e[0].powi(2) + self.e[1].powi(2) + self.e[2].powi(2)
+  }
+
   pub fn unit_vector(self) -> Self {
     self / self.length()
+  }
+
+  pub fn random_in_unit_sphere() -> Self {
+    loop {
+      let p = 2.0 * Vec3::new(random(), random(), random()) - Vec3::new(1.0, 1.0, 1.0);
+      if p.squared_length() >= 1.0 {
+        return p;
+      }
+    }
   }
 
   pub fn x(&self) -> f64 {

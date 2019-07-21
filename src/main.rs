@@ -3,13 +3,9 @@ use raytracing_in_one_weekend::*;
 
 fn color<T: Hitable>(ray: Ray, world: &T) -> Vec3 {
   let mut rec: HitRecord = Default::default();
-  if world.hit(&ray, 0.0, std::f64::MAX, &mut rec) {
-    return 0.5
-      * Vec3::new(
-        rec.normal.x() + 1.0,
-        rec.normal.y() + 1.0,
-        rec.normal.z() + 1.0,
-      );
+  if world.hit(&ray, 0.001, std::f64::MAX, &mut rec) {
+    let target = rec.p + rec.normal + Vec3::random_in_unit_sphere();
+    return 0.5 * color(Ray::new(rec.p, target - rec.p), world);
   } else {
     let unit_direction = ray.direction().unit_vector();
     let t = 0.5 * (unit_direction.y() + 1.0);
@@ -41,6 +37,7 @@ fn main() {
         col += color(r, &world);
       }
       col /= ns as f64;
+      col = Vec3::new(col.r().sqrt(), col.g().sqrt(), col.b().sqrt());
       let r = (M * col.r()).round() as i32;
       let g = (M * col.g()).round() as i32;
       let b = (M * col.b()).round() as i32;
