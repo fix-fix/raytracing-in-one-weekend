@@ -1,15 +1,26 @@
 use rand::prelude::*;
 use raytracing_in_one_weekend::*;
 
-fn color<T: Hitable>(ray: Ray, world: &T) -> Vec3 {
-  let mut rec: HitRecord = Default::default();
-  if world.hit(&ray, 0.001, std::f64::MAX, &mut rec) {
-    let target = rec.p + rec.normal + Vec3::random_in_unit_sphere();
-    return 0.5 * color(Ray::new(rec.p, target - rec.p), world);
-  } else {
-    let unit_direction = ray.direction().unit_vector();
-    let t = 0.5 * (unit_direction.y() + 1.0);
-    return (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0);
+fn color<T: Hitable>(ray: Ray, world: &T, depth: i64) -> Vec3 {
+  match world.hit(&ray, 0.001, std::f64::MAX) {
+    Some(rec) => {
+      if depth < 50 {
+        if let Some(Scatter {
+          rec: _,
+          attenuation,
+          scattered,
+        }) = rec.material.scatter(&ray, &rec)
+        {
+          return attenuation * color(scattered, world, depth + 1);
+        }
+      }
+      Vec3::new(0.0, 0.0, 0.0)
+    }
+    None => {
+      let unit_direction = ray.direction().unit_vector();
+      let t = 0.5 * (unit_direction.y() + 1.0);
+      return (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0);
+    }
   }
 }
 
@@ -21,9 +32,15 @@ fn main() {
   let ns = 100;
   println!("P3\n{} {}\n255", nx, ny);
 
+  let mat_lambertian1 = Lambertian::new(Vec3::new(0.8, 0.3, 0.3));
+  let mat_lambertian2 = Lambertian::new(Vec3::new(0.8, 0.8, 0.0));
+  let mat_metal1 = Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3);
+  let mat_metal2 = Metal::new(Vec3::new(0.8, 0.8, 0.8), 1.0);
   let world = HitableVec::new(vec![
-    Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5),
-    Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0),
+    Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, &mat_lambertian1),
+    Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0, &mat_lambertian2),
+    Sphere::new(Vec3::new(1.0, 0.0, -1.0), 0.5, &mat_metal1),
+    Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5, &mat_metal2),
   ]);
   let cam = Camera::default();
 
@@ -34,7 +51,7 @@ fn main() {
         let u = (i as f64 + random::<f64>()) / nx as f64;
         let v = (j as f64 + random::<f64>()) / ny as f64;
         let r = cam.get_ray(u, v);
-        col += color(r, &world);
+        col += color(r, &world, 0);
       }
       col /= ns as f64;
       col = Vec3::new(col.r().sqrt(), col.g().sqrt(), col.b().sqrt());

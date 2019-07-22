@@ -1,10 +1,12 @@
 pub mod camera;
 pub mod hitable;
+pub mod material;
 pub mod ray;
 pub mod sphere;
 pub mod vec3;
 pub use self::camera::*;
 pub use self::hitable::*;
+pub use self::material::*;
 pub use self::ray::*;
 pub use self::sphere::*;
 pub use self::vec3::*;

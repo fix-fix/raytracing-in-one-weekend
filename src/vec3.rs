@@ -7,7 +7,7 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
-  pub fn new(e0: f64, e1: f64, e2: f64) -> Self {
+  pub const fn new(e0: f64, e1: f64, e2: f64) -> Self {
     Vec3 { e: [e0, e1, e2] }
   }
 
@@ -30,6 +30,10 @@ impl Vec3 {
         return p;
       }
     }
+  }
+
+  pub fn reflect(self, n: Self) -> Self {
+    self - 2.0 * Self::dot(self, n) * n
   }
 
   pub fn x(&self) -> f64 {
@@ -98,6 +102,18 @@ impl Mul<Vec3> for f64 {
 
   fn mul(self, other: Self::Output) -> Self::Output {
     Vec3::new(other.e[0] * self, other.e[1] * self, other.e[2] * self)
+  }
+}
+
+impl Mul for Vec3 {
+  type Output = Vec3;
+
+  fn mul(self, other: Self::Output) -> Self::Output {
+    Vec3::new(
+      other.e[0] * self.e[0],
+      other.e[1] * self.e[1],
+      other.e[2] * self.e[2],
+    )
   }
 }
 
