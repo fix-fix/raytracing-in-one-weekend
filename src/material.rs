@@ -1,4 +1,5 @@
 use crate::{hitable::HitRecord, ray::Ray, vec3::Vec3};
+pub use dielectric::*;
 pub use lambertian::*;
 pub use metal::*;
 use std::sync::Arc;
@@ -71,5 +72,60 @@ mod metal {
       }
       None
     }
+  }
+}
+
+mod dielectric {
+  use super::*;
+  use rand::prelude::*;
+
+  #[derive(Default, Clone, Copy)]
+  pub struct Dielectric {
+    ref_idx: f64,
+  }
+
+  impl Dielectric {
+    pub fn new(ref_idx: f64) -> Self {
+      Self { ref_idx }
+    }
+  }
+
+  impl Material for Dielectric {
+    fn scatter(&self, ray_in: &Ray, rec: &HitRecord) -> Option<Scatter> {
+      let outward_normal: Vec3;
+      let ni_over_nt: f64;
+      let reflected = Vec3::reflect(ray_in.direction(), rec.normal);
+      let attenuation = Vec3::new(1.0, 1.0, 1.0);
+      let cosine: f64;
+      if Vec3::dot(ray_in.direction(), rec.normal) > 0.0 {
+        outward_normal = -rec.normal;
+        ni_over_nt = self.ref_idx;
+        cosine =
+          self.ref_idx * Vec3::dot(ray_in.direction(), rec.normal) / ray_in.direction().length();
+      } else {
+        outward_normal = rec.normal;
+        ni_over_nt = 1.0 / self.ref_idx;
+        cosine = -Vec3::dot(ray_in.direction(), rec.normal) / ray_in.direction().length();
+      }
+      match (
+        Vec3::refract(ray_in.direction(), outward_normal, ni_over_nt),
+        shlick(cosine, self.ref_idx),
+        random::<f64>(),
+      ) {
+        (Some(refracted), reflect_prob, r) if r >= reflect_prob => Some(Scatter {
+          attenuation,
+          scattered: Ray::new(rec.p, refracted),
+        }),
+        _ => Some(Scatter {
+          attenuation,
+          scattered: Ray::new(rec.p, reflected),
+        }),
+      }
+    }
+  }
+
+  fn shlick(cosine: f64, ref_idx: f64) -> f64 {
+    let r0 = ((1.0 - ref_idx) / (1.0 + ref_idx)).powi(2);
+    r0 + (1.0 - r0) * (1.0 - cosine).powi(5)
   }
 }

@@ -1,5 +1,5 @@
 use rand::prelude::*;
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, Sub};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, Neg, Sub};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
@@ -34,6 +34,16 @@ impl Vec3 {
 
   pub fn reflect(self, n: Self) -> Self {
     self - 2.0 * Self::dot(self, n) * n
+  }
+
+  pub fn refract(self, n: Self, ni_over_nt: f64) -> Option<Self> {
+    let uv = self.unit_vector();
+    let dt = Self::dot(uv, n);
+    let discriminant = 1.0 - ni_over_nt.powi(2) * (1.0 - dt.powi(2));
+    if discriminant > 0.0 {
+      return Some(ni_over_nt * (uv - dt * n) - discriminant.sqrt() * n);
+    }
+    None
   }
 
   pub fn x(&self) -> f64 {
@@ -114,6 +124,14 @@ impl Mul for Vec3 {
       other.e[1] * self.e[1],
       other.e[2] * self.e[2],
     )
+  }
+}
+
+impl Neg for Vec3 {
+  type Output = Vec3;
+
+  fn neg(self) -> Self::Output {
+    Vec3::new(-self.e[0], -self.e[1], -self.e[2])
   }
 }
 

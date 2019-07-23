@@ -36,7 +36,7 @@ fn main() {
     Sphere::new(
       Vec3::new(0.0, 0.0, -1.0),
       0.5,
-      Arc::new(Lambertian::new(Vec3::new(0.8, 0.3, 0.3))),
+      Arc::new(Lambertian::new(Vec3::new(0.1, 0.2, 0.5))),
     ),
     Sphere::new(
       Vec3::new(0.0, -100.5, -1.0),
@@ -51,7 +51,12 @@ fn main() {
     Sphere::new(
       Vec3::new(-1.0, 0.0, -1.0),
       0.5,
-      Arc::new(Metal::new(Vec3::new(0.8, 0.8, 0.8), 1.0)),
+      Arc::new(Dielectric::new(1.5)),
+    ),
+    Sphere::new(
+      Vec3::new(-1.0, 0.0, -1.0),
+      -0.45,
+      Arc::new(Dielectric::new(1.5)),
     ),
   ]);
   let cam = Camera::default();
