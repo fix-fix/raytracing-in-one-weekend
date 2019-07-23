@@ -1,15 +1,15 @@
-use crate::{material::Material, ray::Ray, vec3::Vec3};
+use crate::{material::MaterialPtr, ray::Ray, vec3::Vec3};
 
-#[derive(Clone, Copy)]
-pub struct HitRecord<'a> {
+#[derive(Clone)]
+pub struct HitRecord {
   pub t: f64,
   pub p: Vec3,
   pub normal: Vec3,
-  pub material: &'a Material,
+  pub material: MaterialPtr,
 }
 
-impl<'a> HitRecord<'a> {
-  pub fn new(t: f64, p: Vec3, normal: Vec3, material: &'a Material) -> Self {
+impl HitRecord {
+  pub fn new(t: f64, p: Vec3, normal: Vec3, material: MaterialPtr) -> Self {
     HitRecord {
       t,
       p,

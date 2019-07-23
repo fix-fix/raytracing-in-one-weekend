@@ -1,19 +1,19 @@
 use crate::{
   hitable::{HitRecord, Hitable},
-  material::Material,
+  material::MaterialPtr,
   ray::Ray,
   vec3::Vec3,
 };
 
-#[derive(Clone, Copy)]
-pub struct Sphere<'a> {
+#[derive(Clone)]
+pub struct Sphere {
   radius: f64,
   center: Vec3,
-  material: &'a (Material + 'a),
+  material: MaterialPtr,
 }
 
-impl<'a> Sphere<'a> {
-  pub fn new(center: Vec3, radius: f64, material: &'a impl Material) -> Sphere<'a> {
+impl Sphere {
+  pub fn new(center: Vec3, radius: f64, material: MaterialPtr) -> Sphere {
     Sphere {
       center,
       radius,
@@ -22,7 +22,7 @@ impl<'a> Sphere<'a> {
   }
 }
 
-impl<'a> Hitable for Sphere<'a> {
+impl Hitable for Sphere {
   fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
     let oc = r.origin() - self.center;
     let a = Vec3::dot(r.direction(), r.direction());
@@ -35,14 +35,14 @@ impl<'a> Hitable for Sphere<'a> {
         let t = temp;
         let p = r.point_at_parameter(temp);
         let normal = (p - self.center) / self.radius;
-        return Some(HitRecord::new(t, p, normal, self.material));
+        return Some(HitRecord::new(t, p, normal, self.material.clone()));
       }
       temp = (-b + discriminant.sqrt()) / a;
       if temp < t_max && temp > t_min {
         let t = temp;
         let p = r.point_at_parameter(temp);
         let normal = (p - self.center) / self.radius;
-        return Some(HitRecord::new(t, p, normal, self.material));
+        return Some(HitRecord::new(t, p, normal, self.material.clone()));
       }
     }
     None

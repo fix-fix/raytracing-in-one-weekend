@@ -1,12 +1,12 @@
 use rand::prelude::*;
 use raytracing_in_one_weekend::*;
+use std::sync::Arc;
 
 fn color<T: Hitable>(ray: Ray, world: &T, depth: i64) -> Vec3 {
   match world.hit(&ray, 0.001, std::f64::MAX) {
     Some(rec) => {
       if depth < 50 {
         if let Some(Scatter {
-          rec: _,
           attenuation,
           scattered,
         }) = rec.material.scatter(&ray, &rec)
@@ -32,15 +32,27 @@ fn main() {
   let ns = 100;
   println!("P3\n{} {}\n255", nx, ny);
 
-  let mat_lambertian1 = Lambertian::new(Vec3::new(0.8, 0.3, 0.3));
-  let mat_lambertian2 = Lambertian::new(Vec3::new(0.8, 0.8, 0.0));
-  let mat_metal1 = Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3);
-  let mat_metal2 = Metal::new(Vec3::new(0.8, 0.8, 0.8), 1.0);
   let world = HitableVec::new(vec![
-    Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, &mat_lambertian1),
-    Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0, &mat_lambertian2),
-    Sphere::new(Vec3::new(1.0, 0.0, -1.0), 0.5, &mat_metal1),
-    Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5, &mat_metal2),
+    Sphere::new(
+      Vec3::new(0.0, 0.0, -1.0),
+      0.5,
+      Arc::new(Lambertian::new(Vec3::new(0.8, 0.3, 0.3))),
+    ),
+    Sphere::new(
+      Vec3::new(0.0, -100.5, -1.0),
+      100.0,
+      Arc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0))),
+    ),
+    Sphere::new(
+      Vec3::new(1.0, 0.0, -1.0),
+      0.5,
+      Arc::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3)),
+    ),
+    Sphere::new(
+      Vec3::new(-1.0, 0.0, -1.0),
+      0.5,
+      Arc::new(Metal::new(Vec3::new(0.8, 0.8, 0.8), 1.0)),
+    ),
   ]);
   let cam = Camera::default();
 
