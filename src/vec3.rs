@@ -122,6 +122,14 @@ impl Mul<Vec3> for f64 {
   }
 }
 
+impl Mul<f64> for Vec3 {
+  type Output = Vec3;
+
+  fn mul(self, other: f64) -> Self::Output {
+    Vec3::new(self.e[0] * other, self.e[1] * other, self.e[2] * other)
+  }
+}
+
 impl Mul for Vec3 {
   type Output = Vec3;
 

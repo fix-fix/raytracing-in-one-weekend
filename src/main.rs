@@ -58,14 +58,21 @@ fn main() {
       Arc::new(Dielectric::new(1.5)),
     ),
   ]);
+
+  let lookfrom = Vec3::new(3., 3., 2.);
+  let lookat = Vec3::new(0., 0., -1.);
+  let dist_to_focus = (lookfrom - lookat).length();
+  let aperture = 2.0;
   let cam = Camera::new(
-    Vec3::new(-2., 2., 1.0),
-    Vec3::new(0.0, 0.0, -1.0),
+    lookfrom,
+    lookat,
     Vec3::new(0.0, 1.0, 0.0),
     20.0,
     nx as f64 / ny as f64,
+    aperture,
+    dist_to_focus,
   );
-  eprintln!("Camera: {:?}", cam);
+  dbg!(cam);
 
   println!("P3\n{} {}\n255", nx, ny);
   for j in (0..ny).rev() {
