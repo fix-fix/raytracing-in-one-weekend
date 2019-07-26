@@ -30,7 +30,6 @@ fn main() {
   let nx = 400;
   let ny = 200;
   let ns = 100;
-  println!("P3\n{} {}\n255", nx, ny);
 
   let world = HitableVec::new(vec![
     Sphere::new(
@@ -59,8 +58,16 @@ fn main() {
       Arc::new(Dielectric::new(1.5)),
     ),
   ]);
-  let cam = Camera::default();
+  let cam = Camera::new(
+    Vec3::new(-2., 2., 1.0),
+    Vec3::new(0.0, 0.0, -1.0),
+    Vec3::new(0.0, 1.0, 0.0),
+    20.0,
+    nx as f64 / ny as f64,
+  );
+  eprintln!("Camera: {:?}", cam);
 
+  println!("P3\n{} {}\n255", nx, ny);
   for j in (0..ny).rev() {
     for i in 0..nx {
       let mut col = Vec3::default();

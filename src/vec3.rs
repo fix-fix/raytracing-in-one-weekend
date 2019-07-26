@@ -69,6 +69,13 @@ impl Vec3 {
   pub fn dot(v1: Self, v2: Self) -> f64 {
     v1.e[0] * v2.e[0] + v1.e[1] * v2.e[1] + v1.e[2] * v2.e[2]
   }
+  pub fn cross(v1: Self, v2: Self) -> Self {
+    Self::new(
+      v1.e[1] * v2.e[2] - v1.e[2] * v2.e[1],
+      -(v1.e[0] * v2.e[2] - v1.e[2] * v2.e[0]),
+      v1.e[0] * v2.e[1] - v1.e[1] * v2.e[0],
+    )
+  }
 }
 
 impl Default for Vec3 {
